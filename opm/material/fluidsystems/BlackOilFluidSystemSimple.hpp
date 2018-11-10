@@ -647,7 +647,17 @@ public:
         case oilPhaseIdx: {
             if (enableDissolvedGas()) {
                 const auto& Rs = Opm::BlackOil::template getRs_<ThisType, FluidState, LhsEval>(fluidState, regionIdx);
-                if (fluidState.saturation(gasPhaseIdx) > 0.0 ){
+                if (fluidState.saturation(gasPhaseIdx) > 0.0 && Rs >= (1.0 - 1e-10)*oilPvt_->saturatedGasDissolutionFactor(regionIdx, Opm::scalarValue(T), Opm::scalarValue(p))){
+                    if (fluidState.saturation(gasPhaseIdx) < 1e-4) {
+                        // here comes the relatively expensive case: first calculate and then
+                        // interpolate between the saturated and undersaturated quantities to
+                        // avoid a discontinuity
+                        const auto& alpha = Opm::decay<LhsEval>(fluidState.saturation(gasPhaseIdx))/1e-4;
+                        const auto& bSat = oilPvt_->saturatedInverseFormationVolumeFactor(regionIdx, T, p);
+                        const auto& bUndersat = oilPvt_->inverseFormationVolumeFactor(regionIdx, T, p, Rs);
+                        return alpha*bSat + (1.0 - alpha)*bUndersat;
+                    }
+
                     return oilPvt_->saturatedInverseFormationVolumeFactor(regionIdx, T, p);
                 }
                 return oilPvt_->inverseFormationVolumeFactor(regionIdx, T, p, Rs);
@@ -659,7 +669,19 @@ public:
         case gasPhaseIdx: {
             if (enableVaporizedOil()) {
                 const auto& Rv = Opm::BlackOil::template getRv_<ThisType, FluidState, LhsEval>(fluidState, regionIdx);
-                if (fluidState.saturation(oilPhaseIdx) > 0.0 ){
+                if (fluidState.saturation(oilPhaseIdx) > 0.0 && Rv >= (1.0 - 1e-10)*gasPvt_->saturatedOilVaporizationFactor(regionIdx, Opm::scalarValue(T), Opm::scalarValue(p))){
+                     if (fluidState.saturation(oilPhaseIdx) < 1e-4) {
+                        // here comes the relatively expensive case: first calculate and then
+                        // interpolate between the saturated and undersaturated quantities to
+                        // avoid a discontinuity
+                        const auto& alpha = Opm::decay<LhsEval>(fluidState.saturation(oilPhaseIdx))/1e-4;
+                        const auto& bSat = gasPvt_->saturatedInverseFormationVolumeFactor(regionIdx, T, p);
+                        const auto& bUndersat = gasPvt_->inverseFormationVolumeFactor(regionIdx, T, p, Rv);
+                        return alpha*bSat + (1.0 - alpha)*bUndersat;
+                    }
+
+
+                    
                     return gasPvt_->saturatedInverseFormationVolumeFactor(regionIdx, T, p);
                 }
                 return gasPvt_->inverseFormationVolumeFactor(regionIdx, T, p, Rv);
@@ -842,7 +864,18 @@ public:
         case oilPhaseIdx: {
             if (enableDissolvedGas()) {
                 const auto& Rs = Opm::BlackOil::template getRs_<ThisType, FluidState, LhsEval>(fluidState, regionIdx);
-                if (fluidState.saturation(gasPhaseIdx) > 0.0){                
+                 if (fluidState.saturation(gasPhaseIdx) > 0.0
+                    && Rs >= (1.0 - 1e-10)*oilPvt_->saturatedGasDissolutionFactor(regionIdx, Opm::scalarValue(T), Opm::scalarValue(p)))
+                {
+                    if (fluidState.saturation(gasPhaseIdx) < 1e-4) {
+                        // here comes the relatively expensive case: first calculate and then
+                        // interpolate between the saturated and undersaturated quantities to
+                        // avoid a discontinuity
+                        const auto& alpha = Opm::decay<LhsEval>(fluidState.saturation(gasPhaseIdx))/1e-4;
+                        const auto& muSat = oilPvt_->saturatedViscosity(regionIdx, T, p);
+                        const auto& muUndersat = oilPvt_->viscosity(regionIdx, T, p, Rs);
+                        return alpha*muSat + (1.0 - alpha)*muUndersat;
+                    }
                     return oilPvt_->saturatedViscosity(regionIdx, T, p);
                 }
 
@@ -856,7 +889,18 @@ public:
         case gasPhaseIdx: {
             if (enableVaporizedOil()) {
                 const auto& Rv = Opm::BlackOil::template getRv_<ThisType, FluidState, LhsEval>(fluidState, regionIdx);
-                if (fluidState.saturation(oilPhaseIdx) > 0.0){              
+                if (fluidState.saturation(oilPhaseIdx) > 0.0
+                    && Rv >= (1.0 - 1e-10)*gasPvt_->saturatedOilVaporizationFactor(regionIdx, Opm::scalarValue(T), Opm::scalarValue(p)))
+                {                        
+                    if (fluidState.saturation(oilPhaseIdx) < 1e-4) {
+                        // here comes the relatively expensive case: first calculate and then
+                        // interpolate between the saturated and undersaturated quantities to
+                        // avoid a discontinuity
+                        const auto& alpha = Opm::decay<LhsEval>(fluidState.saturation(oilPhaseIdx))/1e-4;
+                        const auto& muSat = gasPvt_->saturatedViscosity(regionIdx, T, p);
+                        const auto& muUndersat = gasPvt_->viscosity(regionIdx, T, p, Rv);
+                        return alpha*muSat + (1.0 - alpha)*muUndersat;
+                    }
                     return gasPvt_->saturatedViscosity(regionIdx, T, p);
                 }
 
