@@ -446,8 +446,8 @@ public:
 
     
     //! \copydoc BaseFluidSystem::molarMass
-     static Scalar molarMass(unsigned compIdx, unsigned regionIdx = 0)
-     { return molarMass_[regionIdx][compIdx]; }
+    //  static Scalar molarMass(unsigned compIdx, unsigned regionIdx = 0)
+    // { return molarMass_[regionIdx][compIdx]; }
 
     // //! \copydoc BaseFluidSystem::isIdealMixture
     // static bool isIdealMixture(unsigned /*phaseIdx*/)
@@ -513,19 +513,19 @@ public:
                            unsigned phaseIdx)
     { return density<FluidState, LhsEval>(fluidState, phaseIdx, paramCache.regionIndex()); }
 
-    //! \copydoc BaseFluidSystem::fugacityCoefficient
-    template <class FluidState, class LhsEval = typename FluidState::Scalar, class ParamCacheEval = LhsEval>
-    static LhsEval fugacityCoefficient(const FluidState& fluidState,
-                                       const ParameterCache<ParamCacheEval>& paramCache,
-                                       unsigned phaseIdx,
-                                       unsigned compIdx)
-    {
-        throw std::logic_error("Fugacity in pure black oil model ??");
-        return fugacityCoefficient<FluidState, LhsEval>(fluidState,
-                                                        phaseIdx,
-                                                        compIdx,
-                                                        paramCache.regionIndex());
-    }
+    // //! \copydoc BaseFluidSystem::fugacityCoefficient
+    // template <class FluidState, class LhsEval = typename FluidState::Scalar, class ParamCacheEval = LhsEval>
+    // static LhsEval fugacityCoefficient(const FluidState& fluidState,
+    //                                    const ParameterCache<ParamCacheEval>& paramCache,
+    //                                    unsigned phaseIdx,
+    //                                    unsigned compIdx)
+    // {
+    //     throw std::logic_error("Fugacity in pure black oil model ??");
+    //     return fugacityCoefficient<FluidState, LhsEval>(fluidState,
+    //                                                     phaseIdx,
+    //                                                     compIdx,
+    //                                                     paramCache.regionIndex());
+    // }
 
     //! \copydoc BaseFluidSystem::viscosity
     template <class FluidState, class LhsEval = typename FluidState::Scalar, class ParamCacheEval = LhsEval>
@@ -627,7 +627,7 @@ public:
         case oilPhaseIdx: {
             if (enableDissolvedGas()) {
                 const auto& Rs = Opm::BlackOil::template getRs_<ThisType, FluidState, LhsEval>(fluidState, regionIdx);
-                // if (fluidState.saturation(gasPhaseIdx) > 0.0 ){
+                // if (fluidState.saturation(gasPhaseIdx) > 0.0  XXX){ XX need for DRSDT  
                 //    return oilPvt_->saturatedInverseFormationVolumeFactor(regionIdx, T, p);
                 //}
                 return oilPvt_->inverseFormationVolumeFactor(regionIdx, T, p, Rs);
@@ -639,7 +639,7 @@ public:
         case gasPhaseIdx: {
             if (enableVaporizedOil()) {
                 const auto& Rv = Opm::BlackOil::template getRv_<ThisType, FluidState, LhsEval>(fluidState, regionIdx);
-                // if (fluidState.saturation(oilPhaseIdx) > 0.0 ){
+                // if (fluidState.saturation(oilPhaseIdx) > 0.0  XXX){
                 //     return gasPvt_->saturatedInverseFormationVolumeFactor(regionIdx, T, p);
                 // }
                 return gasPvt_->inverseFormationVolumeFactor(regionIdx, T, p, Rv);
@@ -661,7 +661,7 @@ public:
      * For the oil phase, this means that it is gas saturated, the gas phase is oil
      * saturated and for the water phase, there is no difference to formationVolumeFactor()
      */
-    
+    /*
     template <class FluidState, class LhsEval = typename FluidState::Scalar>
     static LhsEval saturatedInverseFormationVolumeFactor(const FluidState& fluidState,
                                                          unsigned phaseIdx,
@@ -669,9 +669,7 @@ public:
     {
         assert(0 <= phaseIdx && phaseIdx <= numPhases);
         assert(0 <= regionIdx && regionIdx <= numRegions());
-        //return inverseFormationVolumeFactor<FluidState, LhsEval>(fluidState, phaseIdx, regionIdx);
-
-        
+                
         const auto& p = Opm::decay<LhsEval>(fluidState.pressure(phaseIdx));
         const auto& T = Opm::decay<LhsEval>(fluidState.temperature(phaseIdx));
 
@@ -683,19 +681,19 @@ public:
         }
         
     }
-    
+    */
     //! \copydoc BaseFluidSystem::fugacityCoefficient
-    template <class FluidState, class LhsEval = typename FluidState::Scalar>
-    static LhsEval fugacityCoefficient(const FluidState& fluidState,
-                                       unsigned phaseIdx,
-                                       unsigned compIdx,
-                                       unsigned regionIdx)
-    {
-        assert(0 <= phaseIdx && phaseIdx <= numPhases);
-        assert(0 <= compIdx && compIdx <= numComponents);
-        assert(0 <= regionIdx && regionIdx <= numRegions());
-        throw std::logic_error("Fugacity for black oil model");
-    }
+    // template <class FluidState, class LhsEval = typename FluidState::Scalar>
+    // static LhsEval fugacityCoefficient(const FluidState& fluidState,
+    //                                    unsigned phaseIdx,
+    //                                    unsigned compIdx,
+    //                                    unsigned regionIdx)
+    // {
+    //     assert(0 <= phaseIdx && phaseIdx <= numPhases);
+    //     assert(0 <= compIdx && compIdx <= numComponents);
+    //     assert(0 <= regionIdx && regionIdx <= numRegions());
+    //     throw std::logic_error("Fugacity for black oil model");
+    // }
 
     //! \copydoc BaseFluidSystem::viscosity
     template <class FluidState, class LhsEval = typename FluidState::Scalar>
@@ -891,104 +889,104 @@ public:
      * \brief Convert the mass fraction of the gas component in the oil phase to the
      *        corresponding gas dissolution factor.
      */
-    template <class LhsEval>
-    static LhsEval convertXoGToRs(const LhsEval& XoG, unsigned regionIdx)
-    {
-        Scalar rho_oRef = referenceDensity_[regionIdx][oilPhaseIdx];
-        Scalar rho_gRef = referenceDensity_[regionIdx][gasPhaseIdx];
+    // template <class LhsEval>
+    // static LhsEval convertXoGToRs(const LhsEval& XoG, unsigned regionIdx)
+    // {
+    //     Scalar rho_oRef = referenceDensity_[regionIdx][oilPhaseIdx];
+    //     Scalar rho_gRef = referenceDensity_[regionIdx][gasPhaseIdx];
 
-        return XoG/(1.0 - XoG)*(rho_oRef/rho_gRef);
-    }
+    //     return XoG/(1.0 - XoG)*(rho_oRef/rho_gRef);
+    // }
 
-    /*!
-     * \brief Convert the mass fraction of the oil component in the gas phase to the
-     *        corresponding oil vaporization factor.
-     */
-    template <class LhsEval>
-    static LhsEval convertXgOToRv(const LhsEval& XgO, unsigned regionIdx)
-    {
-        Scalar rho_oRef = referenceDensity_[regionIdx][oilPhaseIdx];
-        Scalar rho_gRef = referenceDensity_[regionIdx][gasPhaseIdx];
+    // /*!
+    //  * \brief Convert the mass fraction of the oil component in the gas phase to the
+    //  *        corresponding oil vaporization factor.
+    //  */
+    // template <class LhsEval>
+    // static LhsEval convertXgOToRv(const LhsEval& XgO, unsigned regionIdx)
+    // {
+    //     Scalar rho_oRef = referenceDensity_[regionIdx][oilPhaseIdx];
+    //     Scalar rho_gRef = referenceDensity_[regionIdx][gasPhaseIdx];
 
-        return XgO/(1.0 - XgO)*(rho_gRef/rho_oRef);
-    }
+    //     return XgO/(1.0 - XgO)*(rho_gRef/rho_oRef);
+    // }
 
-    /*!
-     * \brief Convert a gas dissolution factor to the the corresponding mass fraction
-     *        of the gas component in the oil phase.
-     */
-    template <class LhsEval>
-    static LhsEval convertRsToXoG(const LhsEval& Rs, unsigned regionIdx)
-    {
-        Scalar rho_oRef = referenceDensity_[regionIdx][oilPhaseIdx];
-        Scalar rho_gRef = referenceDensity_[regionIdx][gasPhaseIdx];
+    // /*!
+    //  * \brief Convert a gas dissolution factor to the the corresponding mass fraction
+    //  *        of the gas component in the oil phase.
+    //  */
+    // template <class LhsEval>
+    // static LhsEval convertRsToXoG(const LhsEval& Rs, unsigned regionIdx)
+    // {
+    //     Scalar rho_oRef = referenceDensity_[regionIdx][oilPhaseIdx];
+    //     Scalar rho_gRef = referenceDensity_[regionIdx][gasPhaseIdx];
 
-        const LhsEval& rho_oG = Rs*rho_gRef;
-        return rho_oG/(rho_oRef + rho_oG);
-    }
+    //     const LhsEval& rho_oG = Rs*rho_gRef;
+    //     return rho_oG/(rho_oRef + rho_oG);
+    // }
 
-    /*!
-     * \brief Convert an oil vaporization factor to the corresponding mass fraction
-     *        of the oil component in the gas phase.
-     */
+    // /*!
+    //  * \brief Convert an oil vaporization factor to the corresponding mass fraction
+    //  *        of the oil component in the gas phase.
+    //  */
     
-    template <class LhsEval>
-    static LhsEval convertRvToXgO(const LhsEval& Rv, unsigned regionIdx)
-    {
-        Scalar rho_oRef = referenceDensity_[regionIdx][oilPhaseIdx];
-        Scalar rho_gRef = referenceDensity_[regionIdx][gasPhaseIdx];
+    // template <class LhsEval>
+    // static LhsEval convertRvToXgO(const LhsEval& Rv, unsigned regionIdx)
+    // {
+    //     Scalar rho_oRef = referenceDensity_[regionIdx][oilPhaseIdx];
+    //     Scalar rho_gRef = referenceDensity_[regionIdx][gasPhaseIdx];
 
-        const LhsEval& rho_gO = Rv*rho_oRef;
-        return rho_gO/(rho_gRef + rho_gO);
-    }
+    //     const LhsEval& rho_gO = Rv*rho_oRef;
+    //     return rho_gO/(rho_gRef + rho_gO);
+    // }
 
-    /*!
-     * \brief Convert a gas mass fraction in the oil phase the corresponding mole fraction.
-     */
-    template <class LhsEval>
-    static LhsEval convertXoGToxoG(const LhsEval& XoG, unsigned regionIdx)
-    {
-        Scalar MO = molarMass_[regionIdx][oilCompIdx];
-        Scalar MG = molarMass_[regionIdx][gasCompIdx];
+    // /*!
+    //  * \brief Convert a gas mass fraction in the oil phase the corresponding mole fraction.
+    //  */
+    // template <class LhsEval>
+    // static LhsEval convertXoGToxoG(const LhsEval& XoG, unsigned regionIdx)
+    // {
+    //     Scalar MO = molarMass_[regionIdx][oilCompIdx];
+    //     Scalar MG = molarMass_[regionIdx][gasCompIdx];
 
-        return XoG*MO / (MG*(1 - XoG) + XoG*MO);
-    }
+    //     return XoG*MO / (MG*(1 - XoG) + XoG*MO);
+    // }
 
-    /*!
-     * \brief Convert a gas mole fraction in the oil phase the corresponding mass fraction.
-     */
-    template <class LhsEval>
-    static LhsEval convertxoGToXoG(const LhsEval& xoG, unsigned regionIdx)
-    {
-        Scalar MO = molarMass_[regionIdx][oilCompIdx];
-        Scalar MG = molarMass_[regionIdx][gasCompIdx];
+    // /*!
+    //  * \brief Convert a gas mole fraction in the oil phase the corresponding mass fraction.
+    //  */
+    // template <class LhsEval>
+    // static LhsEval convertxoGToXoG(const LhsEval& xoG, unsigned regionIdx)
+    // {
+    //     Scalar MO = molarMass_[regionIdx][oilCompIdx];
+    //     Scalar MG = molarMass_[regionIdx][gasCompIdx];
 
-        return xoG*MG / (xoG*(MG - MO) + MO);
-    }
+    //     return xoG*MG / (xoG*(MG - MO) + MO);
+    // }
 
-    /*!
-     * \brief Convert a oil mass fraction in the gas phase the corresponding mole fraction.
-     */
-    template <class LhsEval>
-    static LhsEval convertXgOToxgO(const LhsEval& XgO, unsigned regionIdx)
-    {
-        Scalar MO = molarMass_[regionIdx][oilCompIdx];
-        Scalar MG = molarMass_[regionIdx][gasCompIdx];
+    // /*!
+    //  * \brief Convert a oil mass fraction in the gas phase the corresponding mole fraction.
+    //  */
+    // template <class LhsEval>
+    // static LhsEval convertXgOToxgO(const LhsEval& XgO, unsigned regionIdx)
+    // {
+    //     Scalar MO = molarMass_[regionIdx][oilCompIdx];
+    //     Scalar MG = molarMass_[regionIdx][gasCompIdx];
 
-        return XgO*MG / (MO*(1 - XgO) + XgO*MG);
-    }
+    //     return XgO*MG / (MO*(1 - XgO) + XgO*MG);
+    // }
 
-    /*!
-     * \brief Convert a oil mole fraction in the gas phase the corresponding mass fraction.
-     */
-    template <class LhsEval>
-    static LhsEval convertxgOToXgO(const LhsEval& xgO, unsigned regionIdx)
-    {
-        Scalar MO = molarMass_[regionIdx][oilCompIdx];
-        Scalar MG = molarMass_[regionIdx][gasCompIdx];
+    // /*!
+    //  * \brief Convert a oil mole fraction in the gas phase the corresponding mass fraction.
+    //  */
+    // template <class LhsEval>
+    // static LhsEval convertxgOToXgO(const LhsEval& xgO, unsigned regionIdx)
+    // {
+    //     Scalar MO = molarMass_[regionIdx][oilCompIdx];
+    //     Scalar MG = molarMass_[regionIdx][gasCompIdx];
 
-        return xgO*MO / (xgO*(MO - MG) + MG);
-    }
+    //     return xgO*MO / (xgO*(MO - MG) + MG);
+    // }
 
     /*!
      * \brief Return a reference to the low-level object which calculates the gas phase
