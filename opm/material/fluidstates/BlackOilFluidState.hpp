@@ -202,7 +202,7 @@ public:
      */
     void setTotalSaturation(const Scalar& value)
     {
-        (*totalSaturation_) = value;
+        totalSaturation_ = value;
     }
     
     /*!
@@ -294,7 +294,7 @@ public:
      */
     const Scalar& totalSaturation() const
     {
-        return *totalSaturation_;
+        return totalSaturation_;
     }
     /*!
      * \brief Return the inverse formation volume factor of a fluid phase [-].
