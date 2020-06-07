@@ -198,6 +198,14 @@ public:
     { saturation_[canonicalToStoragePhaseIndex_(phaseIdx)] = S; }
 
     /*!
+     * \brief Set the total saturation used for sequential methods
+     */
+    void setTotalSaturation(const Scalar& value)
+    {
+        (*totalSaturation_) = value;
+    }
+    
+    /*!
      * \brief Set the temperature [K]
      *
      * If neither the enableTemperature nor the enableEnergy template arguments are set
@@ -281,7 +289,13 @@ public:
 
         return *temperature_;
     }
-
+    /*!
+     * \brief Return the total saturation needed for sequential
+     */
+    const Scalar& totalSaturation() const
+    {
+        return *totalSaturation_;
+    }
     /*!
      * \brief Return the inverse formation volume factor of a fluid phase [-].
      *
@@ -538,6 +552,7 @@ private:
 
     Opm::ConditionalStorage<enableTemperature || enableEnergy, Scalar> temperature_;
     Opm::ConditionalStorage<enableEnergy, std::array<Scalar, numStoragePhases> > enthalpy_;
+    Scalar totalSaturation_;
     std::array<Scalar, numStoragePhases> pressure_;
     std::array<Scalar, numStoragePhases> saturation_;
     std::array<Scalar, numStoragePhases> invB_;
