@@ -197,6 +197,13 @@ public:
     void setSaturation(unsigned phaseIdx, const Scalar& S)
     { saturation_[canonicalToStoragePhaseIndex_(phaseIdx)] = S; }
 
+
+    /*!
+     * \brief Set the cappilary pressure of a fluid phase [-].
+     */
+    void setPc(unsigned phaseIdx, const Scalar& S)
+    { pc_[canonicalToStoragePhaseIndex_(phaseIdx)] = S; }
+    
     /*!
      * \brief Set the total saturation used for sequential methods
      */
@@ -276,6 +283,12 @@ public:
      */
     const Scalar& saturation(unsigned phaseIdx) const
     { return saturation_[canonicalToStoragePhaseIndex_(phaseIdx)]; }
+
+    /*!
+     * \brief Return the capillary pressure of a fluid phase [-]
+     */
+    const Scalar& pc(unsigned phaseIdx) const
+    { return pc_[canonicalToStoragePhaseIndex_(phaseIdx)]; }
 
     /*!
      * \brief Return the temperature [K]
@@ -554,6 +567,7 @@ private:
     Opm::ConditionalStorage<enableEnergy, std::array<Scalar, numStoragePhases> > enthalpy_;
     Scalar totalSaturation_;
     std::array<Scalar, numStoragePhases> pressure_;
+    std::array<Scalar, numStoragePhases> pc_;
     std::array<Scalar, numStoragePhases> saturation_;
     std::array<Scalar, numStoragePhases> invB_;
     std::array<Scalar, numStoragePhases> density_;
